@@ -15,7 +15,7 @@ var deasync = require('deasync');
 var rule = new schedule.RecurrenceRule();
 // rule.dayOfWeek = [0, new schedule.Range(4, 6)];
 rule.hour = [0, 1, 2, 6, 11, 12, 17, 18, 23];
-rule.minute = 15;
+rule.minute = 25;
 
 
 
@@ -379,6 +379,109 @@ var j = schedule.scheduleJob(rule, function() { // rule hour at 5 minutes
                     });
 
 
+                    if (fs.existsSync(jsonFilesForCOSFileName)) { //
+                        jsonFilesForCOS = JSON.parse(fs.readFileSync(jsonFilesForCOSFileName, 'utf8'));
+                        jsonFilesForCOS.forEach(function(cosJsonFile) {
+
+
+                            if (fs.existsSync(cosJsonFile.fileName)) {
+
+
+                                if (fs.existsSync(jsonFilesForCOSFileNameDone)) { //
+                                    jsonFilesForCOSDone = JSON.parse(fs.readFileSync(jsonFilesForCOSFileNameDone, 'utf8'));
+                                }
+
+                                var forCosFile = {};
+                                forCosFile.fileName = cosJsonFile.fileName;
+                                if (_.some(jsonFilesForCOSDone, forCosFile)) {
+                                    console.log(moment().format('MMMM Do YYYY, h:mm:ss a') + "upload already done ... " + cosJsonFile.fileName);
+                                    return;
+                                }
+
+                                var sync = true;
+                                console.log(moment().format('MMMM Do YYYY, h:mm:ss a') + "upload... " + cosJsonFile.fileName);
+
+                                cos.sliceUploadFile({
+                                    Bucket: 'dailyjson', // 替换为你的Bucket名称
+                                    Region: 'ap-shanghai', // 设置COS所在的区域，对应关系: 华南->cn-south, 华东->cn-east, 华北->cn-north
+                                    Key: cosJsonFile.fileName.substring(11), // 设置上传到cos后的文件的名称
+                                    FilePath: cosJsonFile.fileName // 设置要上传的本地文件
+                                }, function(err, data) {
+                                    sync = false;
+
+                                    if (!err) {
+                                        console.log(data);
+                                        var forCosFile = {};
+                                        forCosFile.fileName = cosJsonFile.fileName;
+
+
+                                        jsonFilesForCOSDone.push(forCosFile);
+                                        fs.writeFileSync(jsonFilesForCOSFileNameDone, JSON.stringify(jsonFilesForCOSDone, null, '\t'));
+                                    } else {
+                                        console.log(err);
+                                    }
+                                });
+
+                                while (sync) { require('deasync').sleep(2000); }
+                            }
+
+
+                        });
+                    }
+
+
+
+
+                    if (fs.existsSync(audioFilesForCOSFileName)) { //
+                        audioFilesForCOS = JSON.parse(fs.readFileSync(audioFilesForCOSFileName, 'utf8'));
+                        audioFilesForCOS.forEach(function(cosAudioFile) {
+
+
+                            if (fs.existsSync(cosAudioFile.fileName)) {
+
+
+                                if (fs.existsSync(audioFilesForCOSFileNameDone)) { //
+                                    audioFilesForCOSDone = JSON.parse(fs.readFileSync(audioFilesForCOSFileNameDone, 'utf8'));
+                                }
+
+
+                                var forAudioCosFile = {};
+                                forAudioCosFile.fileName = cosAudioFile.fileName;
+                                if (_.some(audioFilesForCOSDone, forAudioCosFile)) {
+                                    console.log(moment().format('MMMM Do YYYY, h:mm:ss a') + "upload already done ... " + cosAudioFile.fileName);
+                                    return;
+                                }
+
+                                var sync = true;
+                                console.log(moment().format('MMMM Do YYYY, h:mm:ss a') + " upload... " + cosAudioFile.fileName);
+
+                                cos.sliceUploadFile({
+                                    Bucket: 'dailyaudio', // 替换为你的Bucket名称
+                                    Region: 'ap-chengdu', // 设置COS所在的区域，对应关系: 华南->cn-south, 华东->cn-east, 华北->cn-north
+                                    Key: cosAudioFile.fileName.substring(cosAudioFile.fileName.lastIndexOf('/')), // 设置上传到cos后的文件的名称
+                                    FilePath: cosAudioFile.fileName // 设置要上传的本地文件
+                                }, function(err, data) {
+                                    sync = false;
+
+                                    if (!err) {
+                                        console.log(data);
+                                        var forAudioCosFile = {};
+                                        forAudioCosFile.fileName = cosAudioFile.fileName;
+
+
+                                        audioFilesForCOSDone.push(forAudioCosFile);
+                                        fs.writeFileSync(audioFilesForCOSFileNameDone, JSON.stringify(audioFilesForCOSDone, null, '\t'));
+                                    } else {
+                                        console.log(err);
+                                    }
+                                });
+
+                                while (sync) { require('deasync').sleep(2000); }
+                            }
+
+
+                        });
+                    }
 
 
                 }
@@ -392,109 +495,109 @@ var j = schedule.scheduleJob(rule, function() { // rule hour at 5 minutes
     });
 
 
-    if (fs.existsSync(jsonFilesForCOSFileName)) { //
-        jsonFilesForCOS = JSON.parse(fs.readFileSync(jsonFilesForCOSFileName, 'utf8'));
-        jsonFilesForCOS.forEach(function(cosJsonFile) {
+    // if (fs.existsSync(jsonFilesForCOSFileName)) { //
+    //     jsonFilesForCOS = JSON.parse(fs.readFileSync(jsonFilesForCOSFileName, 'utf8'));
+    //     jsonFilesForCOS.forEach(function(cosJsonFile) {
 
 
-            if (fs.existsSync(cosJsonFile.fileName)) {
+    //         if (fs.existsSync(cosJsonFile.fileName)) {
 
 
-                if (fs.existsSync(jsonFilesForCOSFileNameDone)) { //
-                    jsonFilesForCOSDone = JSON.parse(fs.readFileSync(jsonFilesForCOSFileNameDone, 'utf8'));
-                }
+    //             if (fs.existsSync(jsonFilesForCOSFileNameDone)) { //
+    //                 jsonFilesForCOSDone = JSON.parse(fs.readFileSync(jsonFilesForCOSFileNameDone, 'utf8'));
+    //             }
 
-                var forCosFile = {};
-                forCosFile.fileName = cosJsonFile.fileName;
-                if (_.some(jsonFilesForCOSDone, forCosFile)) {
-                    console.log(moment().format('MMMM Do YYYY, h:mm:ss a') + "upload already done ... " + cosJsonFile.fileName);
-                    return;
-                }
+    //             var forCosFile = {};
+    //             forCosFile.fileName = cosJsonFile.fileName;
+    //             if (_.some(jsonFilesForCOSDone, forCosFile)) {
+    //                 console.log(moment().format('MMMM Do YYYY, h:mm:ss a') + "upload already done ... " + cosJsonFile.fileName);
+    //                 return;
+    //             }
 
-                var sync = true;
-                console.log(moment().format('MMMM Do YYYY, h:mm:ss a') + "upload... " + cosJsonFile.fileName);
+    //             var sync = true;
+    //             console.log(moment().format('MMMM Do YYYY, h:mm:ss a') + "upload... " + cosJsonFile.fileName);
 
-                cos.sliceUploadFile({
-                    Bucket: 'dailyjson', // 替换为你的Bucket名称
-                    Region: 'ap-shanghai', // 设置COS所在的区域，对应关系: 华南->cn-south, 华东->cn-east, 华北->cn-north
-                    Key: cosJsonFile.fileName.substring(11), // 设置上传到cos后的文件的名称
-                    FilePath: cosJsonFile.fileName // 设置要上传的本地文件
-                }, function(err, data) {
-                    sync = false;
+    //             cos.sliceUploadFile({
+    //                 Bucket: 'dailyjson', // 替换为你的Bucket名称
+    //                 Region: 'ap-shanghai', // 设置COS所在的区域，对应关系: 华南->cn-south, 华东->cn-east, 华北->cn-north
+    //                 Key: cosJsonFile.fileName.substring(11), // 设置上传到cos后的文件的名称
+    //                 FilePath: cosJsonFile.fileName // 设置要上传的本地文件
+    //             }, function(err, data) {
+    //                 sync = false;
 
-                    if (!err) {
-                        console.log(data);
-                        var forCosFile = {};
-                        forCosFile.fileName = cosJsonFile.fileName;
-
-
-                        jsonFilesForCOSDone.push(forCosFile);
-                        fs.writeFileSync(jsonFilesForCOSFileNameDone, JSON.stringify(jsonFilesForCOSDone, null, '\t'));
-                    } else {
-                        console.log(err);
-                    }
-                });
-
-                while (sync) { require('deasync').sleep(2000); }
-            }
+    //                 if (!err) {
+    //                     console.log(data);
+    //                     var forCosFile = {};
+    //                     forCosFile.fileName = cosJsonFile.fileName;
 
 
-        });
-    }
+    //                     jsonFilesForCOSDone.push(forCosFile);
+    //                     fs.writeFileSync(jsonFilesForCOSFileNameDone, JSON.stringify(jsonFilesForCOSDone, null, '\t'));
+    //                 } else {
+    //                     console.log(err);
+    //                 }
+    //             });
+
+    //             while (sync) { require('deasync').sleep(2000); }
+    //         }
+
+
+    //     });
+    // }
 
 
 
 
-    if (fs.existsSync(audioFilesForCOSFileName)) { //
-        audioFilesForCOS = JSON.parse(fs.readFileSync(audioFilesForCOSFileName, 'utf8'));
-        audioFilesForCOS.forEach(function(cosAudioFile) {
+    // if (fs.existsSync(audioFilesForCOSFileName)) { //
+    //     audioFilesForCOS = JSON.parse(fs.readFileSync(audioFilesForCOSFileName, 'utf8'));
+    //     audioFilesForCOS.forEach(function(cosAudioFile) {
 
 
-            if (fs.existsSync(cosAudioFile.fileName)) {
+    //         if (fs.existsSync(cosAudioFile.fileName)) {
 
 
-                if (fs.existsSync(audioFilesForCOSFileNameDone)) { //
-                    audioFilesForCOSDone = JSON.parse(fs.readFileSync(audioFilesForCOSFileNameDone, 'utf8'));
-                }
+    //             if (fs.existsSync(audioFilesForCOSFileNameDone)) { //
+    //                 audioFilesForCOSDone = JSON.parse(fs.readFileSync(audioFilesForCOSFileNameDone, 'utf8'));
+    //             }
 
 
-                var forAudioCosFile = {};
-                forAudioCosFile.fileName = cosAudioFile.fileName;
-                if (_.some(audioFilesForCOSDone, forAudioCosFile)) {
-                    console.log(moment().format('MMMM Do YYYY, h:mm:ss a') + "upload already done ... " + cosAudioFile.fileName);
-                    return;
-                }
+    //             var forAudioCosFile = {};
+    //             forAudioCosFile.fileName = cosAudioFile.fileName;
+    //             if (_.some(audioFilesForCOSDone, forAudioCosFile)) {
+    //                 console.log(moment().format('MMMM Do YYYY, h:mm:ss a') + "upload already done ... " + cosAudioFile.fileName);
+    //                 return;
+    //             }
 
-                var sync = true;
-                console.log(moment().format('MMMM Do YYYY, h:mm:ss a') + " upload... " + cosAudioFile.fileName);
+    //             var sync = true;
+    //             console.log(moment().format('MMMM Do YYYY, h:mm:ss a') + " upload... " + cosAudioFile.fileName);
 
-                cos.sliceUploadFile({
-                    Bucket: 'dailyaudio', // 替换为你的Bucket名称
-                    Region: 'ap-chengdu', // 设置COS所在的区域，对应关系: 华南->cn-south, 华东->cn-east, 华北->cn-north
-                    Key: cosAudioFile.fileName.substring(cosAudioFile.fileName.lastIndexOf('/')), // 设置上传到cos后的文件的名称
-                    FilePath: cosAudioFile.fileName // 设置要上传的本地文件
-                }, function(err, data) {
-                    sync = false;
+    //             cos.sliceUploadFile({
+    //                 Bucket: 'dailyaudio', // 替换为你的Bucket名称
+    //                 Region: 'ap-chengdu', // 设置COS所在的区域，对应关系: 华南->cn-south, 华东->cn-east, 华北->cn-north
+    //                 Key: cosAudioFile.fileName.substring(cosAudioFile.fileName.lastIndexOf('/')), // 设置上传到cos后的文件的名称
+    //                 FilePath: cosAudioFile.fileName // 设置要上传的本地文件
+    //             }, function(err, data) {
+    //                 sync = false;
 
-                    if (!err) {
-                        console.log(data);
-                        var forAudioCosFile = {};
-                        forAudioCosFile.fileName = cosAudioFile.fileName;
-
-
-                        audioFilesForCOSDone.push(forAudioCosFile);
-                        fs.writeFileSync(audioFilesForCOSFileNameDone, JSON.stringify(audioFilesForCOSDone, null, '\t'));
-                    } else {
-                        console.log(err);
-                    }
-                });
-
-                while (sync) { require('deasync').sleep(2000); }
-            }
+    //                 if (!err) {
+    //                     console.log(data);
+    //                     var forAudioCosFile = {};
+    //                     forAudioCosFile.fileName = cosAudioFile.fileName;
 
 
-        });
-    }
+    //                     audioFilesForCOSDone.push(forAudioCosFile);
+    //                     fs.writeFileSync(audioFilesForCOSFileNameDone, JSON.stringify(audioFilesForCOSDone, null, '\t'));
+    //                 } else {
+    //                     console.log(err);
+    //                 }
+    //             });
+
+    //             while (sync) { require('deasync').sleep(2000); }
+    //         }
+
+
+    //     });
+    // }
 
 
     // console.log(jsonFilesForCOS);
