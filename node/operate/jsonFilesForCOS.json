@@ -1,5 +1,8 @@
 [
 	{
 		"fileName": "../operate/all_dy20171130_songs.json"
+	},
+	{
+		"fileName": "../operate/all_gn20171130_songs.json"
 	}
 ]
