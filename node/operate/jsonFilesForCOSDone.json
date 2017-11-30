@@ -37,5 +37,8 @@
 	},
 	{
 		"fileName": "../operate/all_tr20171130_songs.json"
+	},
+	{
+		"fileName": "../operate/all_ir20171130_songs.json"
 	}
 ]
