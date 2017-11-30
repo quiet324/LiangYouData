@@ -13,5 +13,8 @@
 	},
 	{
 		"fileName": "../operate/all_ds20171130_songs.json"
+	},
+	{
+		"fileName": "../operate/all_ynf20171130_songs.json"
 	}
 ]
