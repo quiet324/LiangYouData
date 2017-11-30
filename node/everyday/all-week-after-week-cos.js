@@ -15,7 +15,7 @@ var deasync = require('deasync');
 var rule = new schedule.RecurrenceRule();
 // rule.dayOfWeek = [0, new schedule.Range(4, 6)];
 rule.hour = [0, 1, 2, 6, 11, 12, 17, 18, 23];
-rule.minute = 25;
+rule.minute = 36;
 
 
 
@@ -173,6 +173,8 @@ var j = schedule.scheduleJob(rule, function() { // rule hour at 5 minutes
         }
 
         // var done = false;
+
+        var outerSync = true;
 
 
 
@@ -432,65 +434,68 @@ var j = schedule.scheduleJob(rule, function() { // rule hour at 5 minutes
 
 
 
-                    if (fs.existsSync(audioFilesForCOSFileName)) { //
-                        audioFilesForCOS = JSON.parse(fs.readFileSync(audioFilesForCOSFileName, 'utf8'));
-                        audioFilesForCOS.forEach(function(cosAudioFile) {
+                    // if (fs.existsSync(audioFilesForCOSFileName)) { //
+                    //     audioFilesForCOS = JSON.parse(fs.readFileSync(audioFilesForCOSFileName, 'utf8'));
+                    //     audioFilesForCOS.forEach(function(cosAudioFile) {
 
 
-                            if (fs.existsSync(cosAudioFile.fileName)) {
+                    //         if (fs.existsSync(cosAudioFile.fileName)) {
 
 
-                                if (fs.existsSync(audioFilesForCOSFileNameDone)) { //
-                                    audioFilesForCOSDone = JSON.parse(fs.readFileSync(audioFilesForCOSFileNameDone, 'utf8'));
-                                }
+                    //             if (fs.existsSync(audioFilesForCOSFileNameDone)) { //
+                    //                 audioFilesForCOSDone = JSON.parse(fs.readFileSync(audioFilesForCOSFileNameDone, 'utf8'));
+                    //             }
 
 
-                                var forAudioCosFile = {};
-                                forAudioCosFile.fileName = cosAudioFile.fileName;
-                                if (_.some(audioFilesForCOSDone, forAudioCosFile)) {
-                                    console.log(moment().format('MMMM Do YYYY, h:mm:ss a') + "upload already done ... " + cosAudioFile.fileName);
-                                    return;
-                                }
+                    //             var forAudioCosFile = {};
+                    //             forAudioCosFile.fileName = cosAudioFile.fileName;
+                    //             if (_.some(audioFilesForCOSDone, forAudioCosFile)) {
+                    //                 console.log(moment().format('MMMM Do YYYY, h:mm:ss a') + "upload already done ... " + cosAudioFile.fileName);
+                    //                 return;
+                    //             }
 
-                                var sync = true;
-                                console.log(moment().format('MMMM Do YYYY, h:mm:ss a') + " upload... " + cosAudioFile.fileName);
+                    //             var sync = true;
+                    //             console.log(moment().format('MMMM Do YYYY, h:mm:ss a') + " upload... " + cosAudioFile.fileName);
 
-                                cos.sliceUploadFile({
-                                    Bucket: 'dailyaudio', // 替换为你的Bucket名称
-                                    Region: 'ap-chengdu', // 设置COS所在的区域，对应关系: 华南->cn-south, 华东->cn-east, 华北->cn-north
-                                    Key: cosAudioFile.fileName.substring(cosAudioFile.fileName.lastIndexOf('/')), // 设置上传到cos后的文件的名称
-                                    FilePath: cosAudioFile.fileName // 设置要上传的本地文件
-                                }, function(err, data) {
-                                    sync = false;
+                    //             cos.sliceUploadFile({
+                    //                 Bucket: 'dailyaudio', // 替换为你的Bucket名称
+                    //                 Region: 'ap-chengdu', // 设置COS所在的区域，对应关系: 华南->cn-south, 华东->cn-east, 华北->cn-north
+                    //                 Key: cosAudioFile.fileName.substring(cosAudioFile.fileName.lastIndexOf('/')), // 设置上传到cos后的文件的名称
+                    //                 FilePath: cosAudioFile.fileName // 设置要上传的本地文件
+                    //             }, function(err, data) {
+                    //                 sync = false;
 
-                                    if (!err) {
-                                        console.log(data);
-                                        var forAudioCosFile = {};
-                                        forAudioCosFile.fileName = cosAudioFile.fileName;
-
-
-                                        audioFilesForCOSDone.push(forAudioCosFile);
-                                        fs.writeFileSync(audioFilesForCOSFileNameDone, JSON.stringify(audioFilesForCOSDone, null, '\t'));
-                                    } else {
-                                        console.log(err);
-                                    }
-                                });
-
-                                while (sync) { require('deasync').sleep(2000); }
-                            }
+                    //                 if (!err) {
+                    //                     console.log(data);
+                    //                     var forAudioCosFile = {};
+                    //                     forAudioCosFile.fileName = cosAudioFile.fileName;
 
 
-                        });
-                    }
+                    //                     audioFilesForCOSDone.push(forAudioCosFile);
+                    //                     fs.writeFileSync(audioFilesForCOSFileNameDone, JSON.stringify(audioFilesForCOSDone, null, '\t'));
+                    //                 } else {
+                    //                     console.log(err);
+                    //                 }
+                    //             });
+
+                    //             while (sync) { require('deasync').sleep(2000); }
+                    //         }
+
+
+                    //     });
+                    // }
 
 
                 }
 
                 // var done = true;
+                outerSync = false;
 
             });
 
         // require('deasync').loopWhile(function() { return !done; });
+
+        while (outerSync) { require('deasync').sleep(2000); }
 
     });
 
