@@ -14,8 +14,8 @@ var deasync = require('deasync');
 
 var rule = new schedule.RecurrenceRule();
 // rule.dayOfWeek = [0, new schedule.Range(4, 6)];
-rule.hour = [0, 1, 2, 6, 10, 12, 17, 18, 23];
-rule.minute = 59;
+rule.hour = [0, 1, 2, 6, 11, 12, 17, 18, 23];
+rule.minute = 15;
 
 
 
@@ -70,80 +70,80 @@ var j = schedule.scheduleJob(rule, function() { // rule hour at 5 minutes
         jsonFilesForCOS = JSON.parse(fs.readFileSync(jsonFilesForCOSFileName, 'utf8'));
     }
 
-    // if (fs.existsSync('week.json')) {
+    if (fs.existsSync('week.json')) {
 
-    //     lastYearWeekValue = JSON.parse(fs.readFileSync('week.json', 'utf8')).week;
+        lastYearWeekValue = JSON.parse(fs.readFileSync('week.json', 'utf8')).week;
 
-    // } else {
-    //     fs.writeFileSync('week.json', JSON.stringify({ "week": year + week }));
-    //     lastYearWeekValue = year + week;
-    // }
-    // 
-    // if ((year + week) !== lastYearWeekValue) {
-    //     j.cancel();
+    } else {
+        fs.writeFileSync('week.json', JSON.stringify({ "week": year + week }));
+        lastYearWeekValue = year + week;
+    }
 
-    //     fs.writeFileSync('week.json', JSON.stringify({ "week": year + week }));
+    if ((year + week) !== lastYearWeekValue) {
+        j.cancel();
 
-    //     var createReops = "curl -u 'quiet324:" + token + "' https://api.github.com/user/repos -d '{\"name\":\"\'" + repoName + "\'\"}' ";
+        fs.writeFileSync('week.json', JSON.stringify({ "week": year + week }));
 
-    //     if (shell.exec(createReops).code !== 0) {
-    //         shell.echo('Error: Git create failed');
-    //         shell.exit(1);
-    //     }
+        var createReops = "curl -u 'quiet324:" + token + "' https://api.github.com/user/repos -d '{\"name\":\"\'" + repoName + "\'\"}' ";
 
-    //     shell.mkdir('-p', '../../../' + repoName);
-    //     shell.cp('../../artist.json', '../../../' + repoName);
-    //     shell.cp('../../.gitignore', '../../../' + repoName);
+        if (shell.exec(createReops).code !== 0) {
+            shell.echo('Error: Git create failed');
+            shell.exit(1);
+        }
 
-    //     if (shell.exec('rsync -r --exclude=.git ../../node ../../../' + repoName).code !== 0) {
-    //         shell.echo('Error: rsync failed');
-    //         shell.exit(1);
-    //     }
+        shell.mkdir('-p', '../../../' + repoName);
+        shell.cp('../../artist.json', '../../../' + repoName);
+        shell.cp('../../.gitignore', '../../../' + repoName);
 
-    //     shell.rm('-rf', '../../**/*.mp3');
-    //     shell.rm('-rf', '../../**/.*');
+        if (shell.exec('rsync -r --exclude=.git ../../node ../../../' + repoName).code !== 0) {
+            shell.echo('Error: rsync failed');
+            shell.exit(1);
+        }
 
-    //     shell.cd('../../../' + repoName);
+        shell.rm('-rf', '../../**/*.mp3');
+        shell.rm('-rf', '../../**/.*');
 
-    //     if (shell.exec('echo "' + repoName + '" >> README.md').code !== 0) {
-    //         shell.echo('Error: add README.md failed');
-    //         shell.exit(1);
-    //     }
+        shell.cd('../../../' + repoName);
 
-    //     if (shell.exec('git init').code !== 0) {
-    //         shell.echo('Error: git init failed');
-    //         shell.exit(1);
-    //     }
+        if (shell.exec('echo "' + repoName + '" >> README.md').code !== 0) {
+            shell.echo('Error: add README.md failed');
+            shell.exit(1);
+        }
 
-    //     if (shell.exec('git add README.md').code !== 0) {
-    //         shell.echo('Error: git add README.md failed');
-    //         shell.exit(1);
-    //     }
+        if (shell.exec('git init').code !== 0) {
+            shell.echo('Error: git init failed');
+            shell.exit(1);
+        }
 
-    //     if (shell.exec('git commit -m "first commit"').code !== 0) {
-    //         shell.echo('Error: git commit -m "first commit" failed');
-    //         shell.exit(1);
-    //     }
+        if (shell.exec('git add README.md').code !== 0) {
+            shell.echo('Error: git add README.md failed');
+            shell.exit(1);
+        }
 
-    //     if (shell.exec('git remote add origin git@github.com:quiet324/' + repoName + '.git').code !== 0) {
-    //         shell.echo('Error: git remote add origin failed');
-    //         shell.exit(1);
-    //     }
+        if (shell.exec('git commit -m "first commit"').code !== 0) {
+            shell.echo('Error: git commit -m "first commit" failed');
+            shell.exit(1);
+        }
 
-    //     if (shell.exec('git push -u origin master').code !== 0) {
-    //         shell.echo('Error: git push -u origin master failed');
-    //         shell.exit(1);
-    //     }
+        if (shell.exec('git remote add origin git@github.com:quiet324/' + repoName + '.git').code !== 0) {
+            shell.echo('Error: git remote add origin failed');
+            shell.exit(1);
+        }
 
-    //     shell.cd('node/everyday');
+        if (shell.exec('git push -u origin master').code !== 0) {
+            shell.echo('Error: git push -u origin master failed');
+            shell.exit(1);
+        }
 
-    //     if (shell.exec('node all-week-after-week.js').code !== 0) {
-    //         shell.echo('Error: node all.js failed');
-    //         shell.exit(1);
-    //     }
+        shell.cd('node/everyday');
 
-    //     return;
-    // }
+        if (shell.exec('node all-week-after-week-cos.js').code !== 0) {
+            shell.echo('Error: node all.js failed');
+            shell.exit(1);
+        }
+
+        return;
+    }
 
     // var j = schedule.scheduleJob('0 5 * * * *', function() { // // "Runs job every 5 minute"
     // var j = schedule.scheduleJob('0 0 * * * *', function() { //// "Runs job every hour"
@@ -352,10 +352,10 @@ var j = schedule.scheduleJob(rule, function() { // rule hour at 5 minutes
                                     shell.exit(1);
                                 }
 
-                                if (shell.exec('git tag ' + artist.shortName + audio.time).code !== 0) {
-                                    shell.echo('Error: Git tag failed');
-                                    shell.exit(1);
-                                }
+                                // if (shell.exec('git tag ' + artist.shortName + audio.time).code !== 0) {
+                                //     shell.echo('Error: Git tag failed');
+                                //     shell.exit(1);
+                                // }
 
                                 if (shell.exec('git push').code !== 0) {
                                     shell.echo('Error: Git push failed');
@@ -370,7 +370,7 @@ var j = schedule.scheduleJob(rule, function() { // rule hour at 5 minutes
 
 
                             } else {
-                                console.log(file + " exit");
+                                console.log(file + " exist");
                             }
 
 
