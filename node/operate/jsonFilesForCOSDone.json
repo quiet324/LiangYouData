@@ -34,5 +34,8 @@
 	},
 	{
 		"fileName": "../operate/all_cw20171130_songs.json"
+	},
+	{
+		"fileName": "../operate/all_tr20171130_songs.json"
 	}
 ]
